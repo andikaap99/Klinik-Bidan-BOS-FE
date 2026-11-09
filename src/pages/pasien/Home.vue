@@ -1,9 +1,6 @@
 <template>
   <div class="min-h-screen bg-slate-50 pb-24">
-    <header class="flex items-center gap-3 px-4 py-3 bg-white shadow-sm">
-      <img src="@/assets/logo.jpeg" alt="logo" class="w-10 h-10 rounded-full object-cover" />
-      <div class="font-semibold text-[#B81D75] text-sm">Bdn. Okti Susanti, S.Keb</div>
-    </header>
+    <TopHeader />
 
     <div class="max-w-md mx-auto px-4 mt-4">
       <div v-if="!isLoggedIn" class="text-center mt-2">
@@ -33,7 +30,7 @@
         </div>
       </div>
       <div v-else>
-        <h1 class="text-xl font-bold text-slate-800">Selamat Pagi, {{ userName }}</h1>
+        <h1 class="text-xl font-bold text-slate-800">Selamat {{ greeting }}, {{ userName }}</h1>
         <p class="text-gray-500 text-sm mt-1">
           Semoga bunda dan calon buah hati senantiasa sehat dan bahagia.
         </p>
@@ -42,20 +39,20 @@
       <div v-if="isLoggedIn && hasActiveQueue" class="bg-white rounded-3xl p-5 shadow-md mt-5">
         <div class="text-xs text-gray-500 text-center">NOMOR ANTREAN ANDA</div>
         <div class="text-3xl font-bold text-[#B81D75] text-center mt-1">
-          {{ activeQueue.queueNumber }}
+          {{ activeVisit?.queue_number }}
         </div>
         <div class="grid grid-cols-3 gap-2 mt-4 text-center">
           <div>
-            <div class="text-xs text-gray-500">Dipanggil</div>
-            <div class="font-semibold text-slate-800">{{ activeQueue.currentCalled }}</div>
+            <div class="text-xs text-gray-500">Layanan</div>
+            <div class="font-semibold text-slate-800">{{ activeVisit?.service?.nama }}</div>
           </div>
           <div>
-            <div class="text-xs text-gray-500">Sisa Antrean</div>
-            <div class="font-semibold text-slate-800">{{ activeQueue.remainingCount }} Pasien</div>
+            <div class="text-xs text-gray-500">Sesi</div>
+            <div class="font-semibold text-slate-800">{{ activeVisit?.sesi === 'pagi_siang' ? 'Pagi - Siang' : 'Sore - Malam' }}</div>
           </div>
           <div>
-            <div class="text-xs text-gray-500">Estimasi</div>
-            <div class="font-semibold text-slate-800">{{ activeQueue.estimatedTime }}</div>
+            <div class="text-xs text-gray-500">Status</div>
+            <div class="font-semibold text-slate-800">{{ activeVisit?.status }}</div>
           </div>
         </div>
       </div>
@@ -88,9 +85,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import BottomNav from '@/components/BottomNav.vue'
+import TopHeader from '@/components/TopHeader.vue'
 import {
   Heart,
   Baby,
@@ -107,7 +105,25 @@ import {
 const router = useRouter()
 const isLoggedIn = ref(!!localStorage.getItem('user'))
 const userName = ref(JSON.parse(localStorage.getItem('user') || '{}').nama_lengkap || 'Bunda Sarah')
-const hasActiveQueue = ref(localStorage.getItem('hasActiveQueue') === 'true')
+const greeting = computed(() => {
+  const h = new Date().getHours()
+  if (h < 11) return 'Pagi'
+  if (h < 15) return 'Siang'
+  if (h < 18) return 'Sore'
+  return 'Malam'
+})
+const hasActiveQueue = ref(false)
+const activeVisit = ref<any>(null)
+onMounted(async () => {
+  const token = localStorage.getItem('token')
+  if (!token) return
+  const res = await fetch(`${import.meta.env.VITE_API_BASE_URL || '/api/v1'}/visits?status=antre`, { headers: { Authorization: `Bearer ${token}` } })
+  if (res.ok) {
+    const data = await res.json()
+    console.log('daftar kunjungan', data)
+    if (data.items && data.items.length) { hasActiveQueue.value = true; activeVisit.value = data.items[data.items.length - 1] }
+  }
+})
 const activeQueue = ref({
   queueNumber: 'B-014',
   currentCalled: 'B-012',
@@ -135,7 +151,7 @@ function onServiceClick(s: string) {
     router.push('/pasien/login')
     return
   }
-  router.push({ path: '/pasien/register-visit', query: { service: s } })
+  router.push('/pasien/reg-step1')
 }
 
 const services = [

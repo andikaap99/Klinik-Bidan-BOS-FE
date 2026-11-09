@@ -1,9 +1,6 @@
 <template>
   <div class="min-h-screen bg-white">
-    <header class="flex items-center gap-2 px-4 py-3">
-      <router-link to="/pasien/home" class="text-xl">&lt;</router-link>
-      <span class="font-semibold text-[#B81D75]">Bdn. Okti Susanti, S.Keb</span>
-    </header>
+    <TopHeader back="/pasien/home" />
     <div class="max-w-md mx-auto px-4 mt-6">
       <img src="@/assets/logo.jpeg" alt="logo" class="w-20 h-20 mx-auto rounded-full object-cover" />
       <h1 class="text-2xl font-bold text-center text-slate-800 mt-4">Masuk</h1>
@@ -30,7 +27,7 @@
         <div class="bg-white rounded-3xl p-6 max-w-sm mx-4 shadow-xl text-center">
           <div class="text-[#B81D75] font-bold text-lg mb-2">{{ popupTitle }}</div>
           <p class="text-gray-600 text-sm">{{ popupMessage }}</p>
-          <button @click="popupVisible = false; router.push('/pasien/home')" class="mt-4 bg-[#B81D75] text-white rounded-full px-6 py-2 font-semibold">OK</button>
+          <button @click="handlePopupOk" class="mt-4 bg-[#B81D75] text-white rounded-full px-6 py-2 font-semibold">OK</button>
         </div>
       </div>
       <p class="text-center text-sm mt-4">
@@ -44,6 +41,7 @@
 <script setup lang="ts">
 import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
+import TopHeader from '@/components/TopHeader.vue'
 import { authService } from '@/services/authService'
 import type { LoginPayload } from '@/types/auth'
 
@@ -54,7 +52,9 @@ const form = reactive({ username: '', password: '' })
 const popupVisible = ref(false)
 const popupTitle = ref('')
 const popupMessage = ref('')
+const redirectOnOk = ref(false)
 function showPopup(title: string, message: string) { popupTitle.value = title; popupMessage.value = message; popupVisible.value = true }
+function handlePopupOk() { popupVisible.value = false; if (redirectOnOk.value) router.push('/pasien/home') }
 
 async function handleSubmit() {
   loading.value = true
@@ -63,10 +63,12 @@ async function handleSubmit() {
     const res = await authService.login(payload)
     localStorage.setItem('token', res.access_token)
     localStorage.setItem('user', JSON.stringify(res.user))
+    redirectOnOk.value = true
     showPopup('Berhasil', 'Berhasil masuk')
     form.username = ''
     form.password = ''
   } catch (e) {
+    redirectOnOk.value = false
     showPopup('Gagal', 'Username atau password salah. Silakan coba lagi.')
   } finally {
     loading.value = false

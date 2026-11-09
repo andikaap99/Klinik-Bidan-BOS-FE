@@ -60,6 +60,10 @@ export async function handle(req: any, res: any, next: any) {
     if (method === 'GET') return json(res, 200, { id: user.id, username: user.username, nama_lengkap: user.nama_lengkap, nomor_wa: user.nomor_wa, role: user.role })
     if (method === 'PATCH') {
       const b = await parseBody(req)
+      if (b.username && b.username !== user.username) {
+        if (db.users.find((u: any) => u.username.toLowerCase() === b.username.toLowerCase())) return json(res, 409, { code: 'USERNAME_TAKEN', message: 'Username sudah dipakai' })
+        user.username = b.username
+      }
       if (b.nama_lengkap) user.nama_lengkap = b.nama_lengkap
       if (b.nomor_wa) user.nomor_wa = b.nomor_wa
       return json(res, 200, { id: user.id, username: user.username, nama_lengkap: user.nama_lengkap, nomor_wa: user.nomor_wa, role: user.role })

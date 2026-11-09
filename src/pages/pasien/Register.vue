@@ -1,9 +1,6 @@
 <template>
   <div class="min-h-screen bg-white">
-    <header class="flex items-center gap-2 px-4 py-3">
-      <router-link to="/pasien/home" class="text-xl">&lt;</router-link>
-      <span class="font-semibold text-[#B81D75]">Bdn. Okti Susanti, S.Keb</span>
-    </header>
+    <TopHeader back="/pasien/home" />
 
     <div class="max-w-md mx-auto px-4">
       <img src="@/assets/logo.jpeg" alt="logo" class="w-20 h-20 mx-auto rounded-full object-cover" />
@@ -56,6 +53,7 @@
 <script setup lang="ts">
 import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
+import TopHeader from '@/components/TopHeader.vue'
 import { authService } from '@/services/authService'
 import type { RegisterPayload } from '@/types/auth'
 
