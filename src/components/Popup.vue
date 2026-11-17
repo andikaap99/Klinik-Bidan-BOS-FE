@@ -9,6 +9,7 @@
 </template>
 
 <script setup lang="ts">
+defineOptions({ name: 'PopupDialog' })
 defineProps<{ title?: string; message: string }>()
 defineEmits(['close'])
 </script>

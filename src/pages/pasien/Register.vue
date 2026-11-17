@@ -51,6 +51,7 @@
 </template>
 
 <script setup lang="ts">
+defineOptions({ name: 'RegisterView' })
 import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import TopHeader from '@/components/TopHeader.vue'
@@ -79,7 +80,7 @@ async function handleSubmit() {
     form.nama = ''
     form.whatsapp = ''
     form.password = ''
-  } catch (e) {
+  } catch {
     showPopup('Gagal', 'Registrasi gagal. Username mungkin sudah digunakan atau data tidak valid.')
   } finally {
     loading.value = false

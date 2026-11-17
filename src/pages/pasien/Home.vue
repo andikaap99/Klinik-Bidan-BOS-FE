@@ -78,6 +78,7 @@
 </template>
 
 <script setup lang="ts">
+defineOptions({ name: 'HomeView' })
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import BottomNav from '@/components/BottomNav.vue'
@@ -107,8 +108,8 @@ const greeting = computed(() => {
   return 'Malam'
 })
 const hasActiveQueue = ref(false)
-const activeVisit = ref<any>(null)
-const estimation = ref<any>(null)
+const activeVisit = ref<unknown>(null)
+const estimation = ref<unknown>(null)
 onMounted(async () => {
   const token = localStorage.getItem('token')
   if (!token) return

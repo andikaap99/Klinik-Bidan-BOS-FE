@@ -52,7 +52,7 @@ async function handleSubmit() {
     popupMessage.value = 'Antrean berhasil dibuat'
     redirectOnClose.value = true
     popupVisible.value = true
-  } catch(e:any){
+  } catch(e: unknown){
     popupTitle.value = 'Gagal'
     popupMessage.value = e?.message || 'Terjadi kesalahan'
     redirectOnClose.value = false

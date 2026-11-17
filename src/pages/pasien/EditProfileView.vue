@@ -76,7 +76,7 @@ async function submitProfile() {
     redirectOnClose.value = true
     popupVisible.value = true
     isError.value = false
-  } catch (e: any) {
+  } catch (e: unknown) {
     popupTitle.value = 'Gagal'
     popupMessage.value = e?.message || 'Terjadi kesalahan'
     redirectOnClose.value = false

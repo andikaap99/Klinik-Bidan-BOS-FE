@@ -4,5 +4,5 @@ export interface ServiceItem {
   color: 'pink' | 'blue'
   bg: string
   iconColor: string
-  icon: any
+  icon: unknown
 }

@@ -55,7 +55,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { ArrowLeft, LogOut, ChevronRight, Pencil, Lock } from 'lucide-vue-next'
+import {  LogOut, ChevronRight, Pencil, Lock } from 'lucide-vue-next'
 import BottomNav from '@/components/BottomNav.vue'
 import TopHeader from '@/components/TopHeader.vue'
 

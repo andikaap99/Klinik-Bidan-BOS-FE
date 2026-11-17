@@ -29,4 +29,13 @@ export default defineConfigWithVueTs(
   ...pluginOxlint.buildFromOxlintConfigFile('.oxlintrc.json'),
 
   skipFormatting,
+  {
+    name: 'app/relax-unused',
+    rules: {
+      '@typescript-eslint/no-unused-vars': 'off',
+      'no-unused-vars': 'off',
+      '@typescript-eslint/no-require-imports': 'off',
+      'no-require-imports': 'off',
+    },
+  },
 )

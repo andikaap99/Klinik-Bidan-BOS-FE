@@ -40,7 +40,7 @@ import Popup from '@/components/Popup.vue'
 const router = useRouter()
 const base = import.meta.env.VITE_API_BASE_URL || '/api/v1'
 const errorMessage = ref('')
-const cachedPatient = ref<any>(null)
+const cachedPatient = ref<unknown>(null)
 const useCached = ref(false)
 const popupVisible = ref(false)
 const popupTitle = ref('')
@@ -78,7 +78,7 @@ async function handleSubmit() {
     popupMessage.value = 'Data pasien berhasil disimpan'
     redirectOnClose.value = true
     popupVisible.value = true
-  } catch(e:any){
+  } catch(e: unknown){
     popupTitle.value = 'Gagal'
     popupMessage.value = e?.message || 'Terjadi kesalahan'
     redirectOnClose.value = false

@@ -39,6 +39,7 @@
 </template>
 
 <script setup lang="ts">
+defineOptions({ name: 'LoginView' })
 import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import TopHeader from '@/components/TopHeader.vue'
