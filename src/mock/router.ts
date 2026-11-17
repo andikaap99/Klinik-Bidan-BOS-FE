@@ -26,7 +26,7 @@ function paginate(items: any[], limit: number, offset: number) {
   return { items: items.slice(o, o + l), total: items.length, limit: l, offset: o }
 }
 
-export async function handle(req: any, res: any, next: any) {
+export async function handle(req: any, res: any, _next: any) {
   const url = new URL(req.url, 'http://x')
   const path = url.pathname.replace(/^\/api\/v1/, '')
   const method = req.method
@@ -121,7 +121,7 @@ export async function handle(req: any, res: any, next: any) {
   // services
   if (path === '/services' && method === 'GET') {
     if (!user) return json(res, 401, { code: 'TOKEN_EXPIRED', message: 'Belum login' })
-    const items = user.role === 'bidan' ? db.services : db.services.map(({ avg_duration_minutes, ...r }: any) => r)
+    const items = user.role === 'bidan' ? db.services : db.services.map(({ avg_duration_minutes: _avg, ...r }: any) => r)
     return json(res, 200, paginate(items, url.searchParams.get('limit') || 20, url.searchParams.get('offset') || 0))
   }
 
@@ -136,6 +136,7 @@ export async function handle(req: any, res: any, next: any) {
     const key = b.visit_date + '|' + b.sesi
     db.queueCounter[key] = (db.queueCounter[key] || 0) + 1
     const service = db.services.find((s: any) => s.id === b.service_id)
+    if (!service) return json(res, 404, { code: 'NOT_FOUND', message: 'Layanan tidak ada' })
     const v = { id: uid(), patient_id: b.patient_id, service: { id: service.id, nama: service.nama }, visit_date: b.visit_date, sesi: b.sesi, queue_number: db.queueCounter[key], status: 'antre', keluhan: b.keluhan || null, registered_at: new Date().toISOString(), started_at: null, finished_at: null }
     db.visits.push(v)
     return json(res, 201, { id: v.id, patient_id: v.patient_id, service: v.service, visit_date: v.visit_date, sesi: v.sesi, queue_number: v.queue_number, status: v.status })
@@ -258,12 +259,12 @@ export async function handle(req: any, res: any, next: any) {
 
   // users (admin) basic
   if (path === '/users') {
-    if (method === 'GET') return json(res, 200, paginate(db.users.map(({ password, ...r }: any) => r), url.searchParams.get('limit') || 20, url.searchParams.get('offset') || 0))
+    if (method === 'GET') return json(res, 200, paginate(db.users.map(({ password: _pwd, ...r }: any) => r), url.searchParams.get('limit') || 20, url.searchParams.get('offset') || 0))
     if (method === 'POST') {
       const b = await parseBody(req)
       const u = { id: uid(), username: b.username, nama_lengkap: b.nama_lengkap, nomor_wa: b.nomor_wa, role: b.role, password: b.password, created_at: new Date().toISOString() }
       db.users.push(u)
-      const { password, ...r } = u
+      const { password: _pwd, ...r } = u
       return json(res, 201, r)
     }
   }
@@ -272,7 +273,7 @@ export async function handle(req: any, res: any, next: any) {
     const u = db.users.find((x: any) => x.id === um[1])
     const b = await parseBody(req)
     Object.assign(u, b)
-    const { password, ...r } = u
+    const { password: _pwd, ...r } = u
     return json(res, 200, r)
   }
   const urm = path.match(/^\/users\/([^/]+)\/reset-password$/)

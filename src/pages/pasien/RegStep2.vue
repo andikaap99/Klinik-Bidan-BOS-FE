@@ -14,22 +14,31 @@
           <label class="text-xs text-gray-500">Keluhan</label>
           <textarea v-model="form.complaint" placeholder="Keluhan" class="w-full bg-blue-50/50 rounded-xl px-3 py-3" rows="3"></textarea>
         </div>
-        <p v-if="errorMessage" class="text-red-500 text-sm mt-2">{{ errorMessage }}</p>
+        <Popup v-if="popupVisible" :title="popupTitle" :message="popupMessage" @close="handlePopupClose" />
         <button @click="handleSubmit" class="w-full mt-4 bg-[#B81D75] text-white rounded-full py-3 font-semibold">Lanjut</button>
       </div>
     </div>
   </div>
 </template>
 <script setup lang="ts">
-import { reactive, ref } from 'vue'
+import { reactive, ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import TopHeader from '@/components/TopHeader.vue'
+import Popup from '@/components/Popup.vue'
 const router = useRouter()
 const base = import.meta.env.VITE_API_BASE_URL || '/api/v1'
 const errorMessage = ref('')
+const popupVisible = ref(false)
+const popupTitle = ref('')
+const popupMessage = ref('')
+const redirectOnClose = ref(false)
 const services = ['Ibu Hamil','Ibu Bersalin','Imunisasi','KB','Berobat','Pijat Bayi','USG','Promil']
 const serviceMap: Record<string, number> = { 'Ibu Hamil':1,'Ibu Bersalin':2,'Imunisasi':3,'KB':4,'Berobat':5,'Pijat Bayi':6,'USG':7,'Promil':8 }
 const form = reactive({ visitDate: new Date().toISOString().split('T')[0], selectedService: 'Ibu Hamil', complaint: '' })
+onMounted(() => {
+  const s = localStorage.getItem('selectedService')
+  if (s && services.includes(s)) form.selectedService = s
+})
 async function handleSubmit() {
   errorMessage.value = ''
   const token = localStorage.getItem('token') || ''
@@ -39,7 +48,19 @@ async function handleSubmit() {
     if(!res.ok) throw new Error('Gagal membuat antrean')
     const data = await res.json()
     localStorage.setItem('regResult', JSON.stringify(data))
-    router.push('/pasien/reg-result')
-  } catch(e:any){ errorMessage.value = e?.message || 'Terjadi kesalahan' }
+    popupTitle.value = 'Berhasil'
+    popupMessage.value = 'Antrean berhasil dibuat'
+    redirectOnClose.value = true
+    popupVisible.value = true
+  } catch(e:any){
+    popupTitle.value = 'Gagal'
+    popupMessage.value = e?.message || 'Terjadi kesalahan'
+    redirectOnClose.value = false
+    popupVisible.value = true
+  }
+}
+function handlePopupClose() {
+  popupVisible.value = false
+  if (redirectOnClose.value) router.push('/pasien/reg-result')
 }
 </script>

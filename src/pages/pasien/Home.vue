@@ -36,25 +36,18 @@
         </p>
       </div>
 
-      <div v-if="isLoggedIn && hasActiveQueue" class="bg-white rounded-3xl p-5 shadow-md mt-5">
-        <div class="text-xs text-gray-500 text-center">NOMOR ANTREAN ANDA</div>
-        <div class="text-3xl font-bold text-[#B81D75] text-center mt-1">
-          {{ activeVisit?.queue_number }}
-        </div>
-        <div class="grid grid-cols-3 gap-2 mt-4 text-center">
-          <div>
-            <div class="text-xs text-gray-500">Layanan</div>
-            <div class="font-semibold text-slate-800">{{ activeVisit?.service?.nama }}</div>
-          </div>
-          <div>
-            <div class="text-xs text-gray-500">Sesi</div>
-            <div class="font-semibold text-slate-800">{{ activeVisit?.sesi === 'pagi_siang' ? 'Pagi - Siang' : 'Sore - Malam' }}</div>
-          </div>
-          <div>
-            <div class="text-xs text-gray-500">Status</div>
-            <div class="font-semibold text-slate-800">{{ activeVisit?.status }}</div>
-          </div>
-        </div>
+      <div v-if="isLoggedIn && hasActiveQueue" class="mt-5">
+        <QueueCard
+          :visit-id="activeVisit?.id"
+          :queue-number="activeVisit?.queue_number"
+          :service-name="activeVisit?.service?.nama"
+          :sesi="activeVisit?.sesi"
+          :status="activeVisit?.status"
+          :antrean-di-depan="estimation?.antrean_di_depan ?? 0"
+          :estimasi-menit="estimation?.estimasi_menit ?? 0"
+          :perkiraan-dipanggil="estimation?.perkiraan_dipanggil ?? ''"
+          @cancel="handleCancel"
+        />
       </div>
 
       <div class="mt-6">
@@ -88,6 +81,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import BottomNav from '@/components/BottomNav.vue'
+import QueueCard from '@/components/QueueCard.vue'
 import TopHeader from '@/components/TopHeader.vue'
 import {
   Heart,
@@ -114,6 +108,7 @@ const greeting = computed(() => {
 })
 const hasActiveQueue = ref(false)
 const activeVisit = ref<any>(null)
+const estimation = ref<any>(null)
 onMounted(async () => {
   const token = localStorage.getItem('token')
   if (!token) return
@@ -122,6 +117,10 @@ onMounted(async () => {
     const data = await res.json()
     console.log('daftar kunjungan', data)
     if (data.items && data.items.length) { hasActiveQueue.value = true; activeVisit.value = data.items[data.items.length - 1] }
+  }
+  if (activeVisit.value?.id) {
+    const eres = await fetch(`${import.meta.env.VITE_API_BASE_URL || '/api/v1'}/estimation?visit_id=${activeVisit.value.id}`, { headers: { Authorization: `Bearer ${token}` } })
+    if (eres.ok) estimation.value = await eres.json()
   }
 })
 const activeQueue = ref({
@@ -146,11 +145,21 @@ function logout() {
 function takeQueue() {
   hasActiveQueue.value = true
 }
+async function handleCancel(id: string) {
+  const token = localStorage.getItem('token')
+  if (!token) return
+  const base = import.meta.env.VITE_API_BASE_URL || '/api/v1'
+  await fetch(`${base}/visits/${id}/cancel`, { method: 'POST', headers: { Authorization: `Bearer ${token}` } })
+  hasActiveQueue.value = false
+  activeVisit.value = null
+  estimation.value = null
+}
 function onServiceClick(s: string) {
   if (!isLoggedIn.value) {
     router.push('/pasien/login')
     return
   }
+  localStorage.setItem('selectedService', s)
   router.push('/pasien/reg-step1')
 }
 

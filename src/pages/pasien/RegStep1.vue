@@ -4,7 +4,11 @@
     <div class="max-w-md mx-auto px-4 mt-4 space-y-4">
       <div class="bg-white rounded-2xl p-4 shadow-sm">
         <h1 class="font-bold text-slate-800 mb-3">Data Pasien</h1>
-        <div class="space-y-3">
+        <div v-if="cachedPatient" class="flex items-center gap-2 mb-2">
+           <input type="checkbox" v-model="useCached" @change="applyCached" id="useCached" />
+           <label for="useCached" class="text-sm">Gunakan data sebelumnya?</label>
+         </div>
+         <div class="space-y-3">
           <label class="text-xs text-gray-500">NIK <span class="text-red-500">*</span></label>
           <input v-model="form.nik" placeholder="NIK" class="w-full bg-blue-50/50 rounded-xl px-3 py-3" />
           <label class="text-xs text-gray-500">Nama Lengkap <span class="text-red-500">*</span></label>
@@ -22,7 +26,7 @@
           <label class="text-xs text-gray-500">Alamat <span class="text-red-500">*</span></label>
           <textarea v-model="form.address" placeholder="Alamat" class="w-full bg-blue-50/50 rounded-xl px-3 py-3" rows="2"></textarea>
         </div>
-        <p v-if="errorMessage" class="text-red-500 text-sm mt-2">{{ errorMessage }}</p>
+        <Popup v-if="popupVisible" :title="popupTitle" :message="popupMessage" @close="handlePopupClose" />
         <button @click="handleSubmit" class="w-full mt-4 bg-[#B81D75] text-white rounded-full py-3 font-semibold">Lanjut</button>
       </div>
     </div>
@@ -32,9 +36,16 @@
 import { reactive, ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import TopHeader from '@/components/TopHeader.vue'
+import Popup from '@/components/Popup.vue'
 const router = useRouter()
 const base = import.meta.env.VITE_API_BASE_URL || '/api/v1'
 const errorMessage = ref('')
+const cachedPatient = ref<any>(null)
+const useCached = ref(false)
+const popupVisible = ref(false)
+const popupTitle = ref('')
+const popupMessage = ref('')
+const redirectOnClose = ref(false)
 const form = reactive({ nik:'', patientName:'', birthDate:'', gender:'female' as 'female'|'male', guardianName:'', phoneNumber:'', address:'' })
 onMounted(async () => {
   const token = localStorage.getItem('token') || ''
@@ -44,7 +55,16 @@ onMounted(async () => {
     form.patientName = data.nama_lengkap || ''
     form.phoneNumber = data.nomor_wa || ''
   }
+  const cached = localStorage.getItem('cachedPatientData')
+  if (cached) {
+    try { cachedPatient.value = JSON.parse(cached) } catch { cachedPatient.value = null }
+  }
 })
+function applyCached() {
+  if (useCached.value && cachedPatient.value) {
+    Object.assign(form, cachedPatient.value)
+  }
+}
 async function handleSubmit() {
   errorMessage.value = ''
   const token = localStorage.getItem('token') || ''
@@ -53,7 +73,20 @@ async function handleSubmit() {
     if(!res.ok) throw new Error('Gagal menyimpan data pasien')
     const data = await res.json()
     localStorage.setItem('regPatientId', data.id)
-    router.push('/pasien/reg-step2')
-  } catch(e:any){ errorMessage.value = e?.message || 'Terjadi kesalahan' }
+    localStorage.setItem('cachedPatientData', JSON.stringify({ nik:form.nik, patientName:form.patientName, birthDate:form.birthDate, gender:form.gender, guardianName:form.guardianName, phoneNumber:form.phoneNumber, address:form.address }))
+    popupTitle.value = 'Berhasil'
+    popupMessage.value = 'Data pasien berhasil disimpan'
+    redirectOnClose.value = true
+    popupVisible.value = true
+  } catch(e:any){
+    popupTitle.value = 'Gagal'
+    popupMessage.value = e?.message || 'Terjadi kesalahan'
+    redirectOnClose.value = false
+    popupVisible.value = true
+  }
+}
+function handlePopupClose() {
+  popupVisible.value = false
+  if (redirectOnClose.value) router.push('/pasien/reg-step2')
 }
 </script>
