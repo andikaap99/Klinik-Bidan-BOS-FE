@@ -104,27 +104,29 @@ const token = localStorage.getItem('token') || ''
 
 const dateFrom = ref('')
 const dateTo = ref('')
-const summary = ref<any>(null)
-const insight = ref<any>(null)
-const prediction = ref<any>(null)
-const trend = ref<any>(null)
-const breakdown = ref<any>(null)
+const summary = ref<unknown>(null)
+const insight = ref<unknown>(null)
+const prediction = ref<unknown>(null)
+const trend = ref<unknown>(null)
+const breakdown = ref<unknown>(null)
 const selectedDate = ref('')
 const trendInterval = ref('day')
 const trendSesi = ref('all')
 
 const selectedLayanan = computed(() => {
-  const d = prediction.value?.data?.find((x: any) => x.target_date === selectedDate.value)
+  const data = (prediction.value as { data?: { target_date: string; layanan?: unknown[] }[] })?.data
+  const d = data?.find((x) => x.target_date === selectedDate.value)
   return d?.layanan || []
 })
 
-function isPeak(d: any) {
-  const max = Math.max(...(prediction.value?.data || []).map((x: any) => x.total))
-  return d.total === max
+function isPeak(d: unknown) {
+  const data = (prediction.value as { data?: { total: number }[] })?.data || []
+  const max = Math.max(...data.map((x) => x.total))
+  return (d as { total: number }).total === max
 }
 function dayName(d: string) { return new Date(d).toLocaleDateString('id-ID', { weekday: 'short' }) }
-function pct(val: number, arr: any[]) {
-  const total = arr?.reduce((a: number, b: any) => a + b.total, 0) || 1
+function pct(val: number, arr: unknown[]) {
+  const total = (arr as { total: number }[])?.reduce((a, b) => a + b.total, 0) || 1
   return (val / total) * 100
 }
 
