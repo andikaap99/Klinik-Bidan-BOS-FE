@@ -12,7 +12,7 @@
           <div class="mb-4">
             <label class="block text-sm font-semibold mb-1">Username <span class="text-red-500">*</span></label>
             <input v-model="form.username" type="text" placeholder="Pilih username" class="w-full bg-blue-50/50 rounded-xl px-3 py-3 outline-none" />
-            <p v-if="form.username && !/^[a-z]+$/.test(form.username)" class="text-xs text-red-500 mt-1">Username hanya huruf kecil tanpa spasi.</p>
+            <p v-if="form.username && (form.username.length < 3 || form.username.length > 50)" class="text-xs text-red-500 mt-1">Username minimal 3 dan maksimal 50 karakter.</p>
           </div>
           <div class="mb-4">
             <label class="block text-sm font-semibold mb-1">Nama Lengkap <span class="text-red-500">*</span></label>
@@ -28,6 +28,7 @@
               <input v-model="form.password" :type="showPass ? 'text' : 'password'" placeholder="Buat kata sandi" class="w-full bg-transparent py-3 outline-none" />
               <button type="button" @click="showPass = !showPass" class="text-gray-500 text-sm">{{ showPass ? 'Sembunyi' : 'Lihat' }}</button>
             </div>
+          <p v-if="form.password && (form.password.length < 8 || form.password.length > 200)" class="text-xs text-red-500 mt-1">Password minimal 8 dan maksimal 200 karakter.</p>
           </div>
           <button type="submit" class="w-full bg-[#B81D75] text-white rounded-full py-3 font-semibold" :disabled="loading">
             {{ loading ? 'Memproses...' : 'Daftar Akun' }}
@@ -70,6 +71,8 @@ function onWhatsappKeydown(e: KeyboardEvent) { if (!/[0-9]/.test(e.key) && !['Ba
 
 async function handleSubmit() {
   if (!/^[a-z]+$/.test(form.username)) { showPopup('Gagal', 'Username hanya boleh huruf kecil tanpa spasi.'); return }
+  if (form.username.length < 3 || form.username.length > 50) { showPopup('Gagal', 'Username minimal 3 dan maksimal 50 karakter.'); return }
+  if (form.password.length < 8 || form.password.length > 200) { showPopup('Gagal', 'Password minimal 8 dan maksimal 200 karakter.'); return }
   if (!/^\d+$/.test(form.whatsapp)) { showPopup('Gagal', 'Nomor WhatsApp hanya boleh angka.'); return }
   loading.value = true
   try {

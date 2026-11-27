@@ -65,10 +65,7 @@ async function confirmCancel() {
   showConfirm.value = false
   isCancelling.value = false
 }
-const formattedQueue = computed(() => {
-  const n = Number(props.queueNumber)
-  return isNaN(n) ? String(props.queueNumber) : `B-${String(n).padStart(3, '0')}`
-})
+const formattedQueue = computed(() => String(props.queueNumber))
 const formattedSesi = computed(() => props.sesi === 'pagi_siang' ? 'Pagi / Siang' : props.sesi === 'sore_malam' ? 'Sore / Malam' : props.sesi)
 const formattedTime = computed(() => formatTime(props.perkiraanDipanggil))
 const shortTime = computed(() => formatTime(props.perkiraanDipanggil, true))

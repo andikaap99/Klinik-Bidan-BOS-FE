@@ -62,6 +62,10 @@ async function handleSubmit() {
   try {
     const payload: LoginPayload = { ...form }
     const res = await authService.login(payload)
+    if (res.user?.role === 'bidan') {
+      showPopup('Gagal', 'Akun bidan tidak bisa masuk di sini. Silakan login melalui link bidan.')
+      return
+    }
     localStorage.setItem('token', res.access_token)
     localStorage.setItem('user', JSON.stringify(res.user))
     redirectOnOk.value = true
