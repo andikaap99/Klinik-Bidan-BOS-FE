@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export const db: any = {
   users: [
     { id: 'u-bidan', username: 'bidan1', nama_lengkap: 'Bidan Rina', nomor_wa: '081234567890', role: 'bidan', password: 'bidan123', created_at: '2026-11-01T08:00:00+07:00' },
