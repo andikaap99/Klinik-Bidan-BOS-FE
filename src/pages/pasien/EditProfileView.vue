@@ -67,7 +67,7 @@ async function submitProfile() {
   try {
     const res = await fetch(`${base}/me`, { method: 'PATCH', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify(profileForm) })
     const data = await res.json()
-    if (!res.ok) throw new Error(data.message || 'Gagal menyimpan')
+    if (!res.ok) throw new Error((data as { message?: string }).message || 'Gagal menyimpan')
     const u = JSON.parse(localStorage.getItem('user') || '{}')
     u.nama_lengkap = profileForm.nama_lengkap
     localStorage.setItem('user', JSON.stringify(u))
@@ -78,7 +78,7 @@ async function submitProfile() {
     isError.value = false
   } catch (e: unknown) {
     popupTitle.value = 'Gagal'
-    popupMessage.value = e?.message || 'Terjadi kesalahan'
+    popupMessage.value = (e as { message?: string })?.message || 'Terjadi kesalahan'
     redirectOnClose.value = false
     popupVisible.value = true
   } finally {

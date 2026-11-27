@@ -114,9 +114,10 @@ const greeting = computed(() => {
   return 'Malam'
 })
 const hasActiveQueue = ref(false)
-const activeVisit = ref<unknown>(null)
+/* eslint-disable @typescript-eslint/no-explicit-any */
+const activeVisit = ref<any>(null)
 const showBlocked = ref(false)
-const estimation = ref<unknown>(null)
+const estimation = ref<any>(null)
 onMounted(async () => {
   const token = localStorage.getItem('token')
   if (!token) return

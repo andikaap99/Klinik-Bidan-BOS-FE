@@ -18,6 +18,7 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import TopHeader from '@/components/TopHeader.vue'
 const router = useRouter()
-const result = ref<unknown>(null)
+/* eslint-disable @typescript-eslint/no-explicit-any */
+const result = ref<any>(null)
 onMounted(() => { result.value = JSON.parse(localStorage.getItem('regResult') || 'null') })
 </script>

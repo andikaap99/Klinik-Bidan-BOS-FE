@@ -1,4 +1,5 @@
-export const db: unknown = {
+/* eslint-disable @typescript-eslint/no-explicit-any */
+export const db: any = {
   users: [
     { id: 'u-bidan', username: 'bidan1', nama_lengkap: 'Bidan Rina', nomor_wa: '081234567890', role: 'bidan', password: 'bidan123', created_at: '2026-11-01T08:00:00+07:00' },
     { id: 'u-admin', username: 'admin', nama_lengkap: 'Admin', nomor_wa: '081234567890', role: 'admin', password: 'admin123', created_at: '2026-11-01T08:00:00+07:00' },
@@ -17,8 +18,8 @@ export const db: unknown = {
     { id: 7, kode: 'USG', nama: 'USG', avg_duration_minutes: 20 },
     { id: 8, kode: 'PROMIL', nama: 'Promil', avg_duration_minutes: 30 },
   ],
-  visits: [] as unknown[],
-  records: {} as Record<string, unknown>,
+  visits: [] as any[],
+  records: {} as Record<string, any>,
   queueCounter: {} as Record<string, number>,
 }
 export const uid = () => Math.random().toString(36).slice(2) + Date.now().toString(36)
