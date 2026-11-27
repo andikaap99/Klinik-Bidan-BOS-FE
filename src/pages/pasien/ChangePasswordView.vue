@@ -55,14 +55,14 @@ async function submitPassword() {
   try {
     const res = await fetch(`${base}/me/password`, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify(passwordForm) })
     const data = await res.json()
-    if (!res.ok) throw new Error(data.message || 'Gagal mengubah password')
+    if (!res.ok) throw new Error((data as { message?: string }).message || 'Gagal mengubah password')
     popupTitle.value = 'Berhasil'
-    popupMessage.value = data.message || 'Password berhasil diubah'
+    popupMessage.value = (data as { message?: string }).message || 'Password berhasil diubah'
     logoutAfter.value = true
     popupVisible.value = true
   } catch (e: unknown) {
     popupTitle.value = 'Gagal'
-    popupMessage.value = e?.message || 'Terjadi kesalahan'
+    popupMessage.value = (e as { message?: string })?.message || 'Terjadi kesalahan'
     logoutAfter.value = false
     popupVisible.value = true
   } finally {

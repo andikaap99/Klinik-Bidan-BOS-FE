@@ -54,7 +54,7 @@ async function handleSubmit() {
     popupVisible.value = true
   } catch(e: unknown){
     popupTitle.value = 'Gagal'
-    popupMessage.value = e?.message || 'Terjadi kesalahan'
+    popupMessage.value = (e as { message?: string })?.message || 'Terjadi kesalahan'
     redirectOnClose.value = false
     popupVisible.value = true
   }

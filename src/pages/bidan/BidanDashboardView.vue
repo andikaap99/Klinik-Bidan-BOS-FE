@@ -15,11 +15,11 @@
       <div v-if="insight" class="bg-blue-50/60 border border-blue-100 rounded-2xl p-4 mb-6">
         <div class="flex items-center justify-between">
           <span class="text-xs font-semibold text-blue-700">Insight Analitik</span>
-          <span v-if="insight.dari_cache" class="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">Dari Cache</span>
+          <span v-if="(insight as { dari_cache?: boolean })?.dari_cache" class="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">Dari Cache</span>
         </div>
-        <p class="text-sm text-slate-700 mt-2">{{ insight.narasi }}</p>
+        <p class="text-sm text-slate-700 mt-2">{{ (insight as { narasi?: string })?.narasi }}</p>
         <div class="flex items-center justify-between mt-2">
-          <span class="text-xs text-slate-400">{{ insight.generated_at }}</span>
+          <span class="text-xs text-slate-400">{{ (insight as { generated_at?: string })?.generated_at }}</span>
           <button @click="refreshInsight" class="text-xs text-blue-600 font-semibold">Perbarui Analisis</button>
         </div>
       </div>
@@ -63,7 +63,7 @@
         <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-100">
           <h2 class="font-bold text-slate-900 mb-4">Prediksi Pasien Per Layanan</h2>
           <div class="text-xs text-slate-500 mb-2">{{ selectedDate }}</div>
-          <div v-for="l in selectedLayanan" :key="l.nama" class="bg-slate-50 rounded-xl px-4 py-3 flex justify-between items-center mb-2">
+          <div v-for="l in selectedLayanan as any[]" :key="(l as any).nama" class="bg-slate-50 rounded-xl px-4 py-3 flex justify-between items-center mb-2">
             <span class="text-sm">{{ l.nama }}</span>
             <span class="bg-rose-100 text-rose-700 text-xs px-2 py-1 rounded-full">{{ l.predicted_count }} Orang</span>
           </div>
@@ -104,11 +104,12 @@ const token = localStorage.getItem('token') || ''
 
 const dateFrom = ref('')
 const dateTo = ref('')
-const summary = ref<unknown>(null)
-const insight = ref<unknown>(null)
-const prediction = ref<unknown>(null)
-const trend = ref<unknown>(null)
-const breakdown = ref<unknown>(null)
+/* eslint-disable @typescript-eslint/no-explicit-any */
+const summary = ref<any>(null)
+const insight = ref<any>(null)
+const prediction = ref<any>(null)
+const trend = ref<any>(null)
+const breakdown = ref<any>(null)
 const selectedDate = ref('')
 const trendInterval = ref('day')
 const trendSesi = ref('all')
