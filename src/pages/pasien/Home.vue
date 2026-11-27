@@ -73,6 +73,12 @@
       </div>
     </div>
 
+    <div v-if="showBlocked" class="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+      <div class="bg-white rounded-2xl p-5 max-w-sm mx-4 shadow-xl text-center">
+        <p class="text-slate-800 font-semibold mb-3">Anda masih memiliki antrian aktif. Tunggu hingga diperiksa atau batalkan kunjungan terlebih dahulu.</p>
+        <button @click="showBlocked = false" class="flex-1 bg-[#B81D75] text-white rounded-xl py-2 px-4 text-sm">OK</button>
+      </div>
+    </div>
     <BottomNav />
   </div>
 </template>
@@ -109,6 +115,7 @@ const greeting = computed(() => {
 })
 const hasActiveQueue = ref(false)
 const activeVisit = ref<unknown>(null)
+const showBlocked = ref(false)
 const estimation = ref<unknown>(null)
 onMounted(async () => {
   const token = localStorage.getItem('token')
@@ -158,6 +165,10 @@ async function handleCancel(id: string) {
 function onServiceClick(s: string) {
   if (!isLoggedIn.value) {
     router.push('/pasien/login')
+    return
+  }
+  if (hasActiveQueue.value) {
+    showBlocked.value = true
     return
   }
   localStorage.setItem('selectedService', s)

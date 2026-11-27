@@ -37,6 +37,8 @@ export async function handle(req: unknown, res: unknown, _next: unknown) {
   // register
   if (path === '/register' && method === 'POST') {
     const b = await parseBody(req)
+    if (!b.username || b.username.length < 3 || b.username.length > 50) return json(res, 400, { code: 'INVALID_USERNAME', message: 'Username minimal 3 dan maksimal 50 karakter' })
+    if (!b.password || b.password.length < 8 || b.password.length > 200) return json(res, 400, { code: 'INVALID_PASSWORD', message: 'Password minimal 8 dan maksimal 200 karakter' })
     if (db.users.find((u: unknown) => u.username.toLowerCase() === (b.username || '').toLowerCase())) return json(res, 409, { code: 'USERNAME_TAKEN', message: 'Username sudah dipakai' })
     const u = { id: uid(), username: b.username, nama_lengkap: b.nama_lengkap, nomor_wa: b.nomor_wa, role: 'pasien', password: b.password, created_at: new Date().toISOString() }
     db.users.push(u)
